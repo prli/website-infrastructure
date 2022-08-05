@@ -5,6 +5,7 @@ import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { StaticSiteWithCloudfront } from '../lib/static-site-with-cloudfront';
+import { ApiGatewayWithCustomDomain } from '../lib/api-gateway-with-custom-domain';
 
 export interface LambdaBackedCustomDomainWebsiteStackProps extends cdk.StackProps {
   domainName: string;
@@ -37,6 +38,12 @@ class LambdaBackedCustomDomainWebsiteStack extends cdk.Stack {
       hostedZone: this.hostedZone,
       certificate: this.certificate,
       siteContentSources: [s3deploy.Source.asset('../front-end/build')]
+    });
+
+    const apiGatewayWithCustomDomain = new ApiGatewayWithCustomDomain(this, 'ApiGatewayWithCustomDomain', {
+      domainName: `api.${props.domainName}`,
+      hostedZone: this.hostedZone,
+      certificate: this.certificate,
     });
   }
 }
