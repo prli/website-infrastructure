@@ -3,6 +3,8 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import { StaticSiteWithCloudfront } from '../lib/static-site-with-cloudfront';
 
 export interface LambdaBackedCustomDomainWebsiteStackProps extends cdk.StackProps {
   domainName: string;
@@ -28,6 +30,13 @@ class LambdaBackedCustomDomainWebsiteStack extends cdk.Stack {
       hostedZone: this.hostedZone,
       region: 'us-east-1', //must be us-east-1 for cloudfront
       cleanupRoute53Records: true,
+    });
+
+    const staticSiteWithCloudfront = new StaticSiteWithCloudfront(this, 'StaticSiteWithCloudfront', {
+      domainName: props.domainName,
+      hostedZone: this.hostedZone,
+      certificate: this.certificate,
+      siteContentSources: [s3deploy.Source.asset('../front-end/build')]
     });
   }
 }
