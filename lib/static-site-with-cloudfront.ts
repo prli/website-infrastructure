@@ -59,10 +59,10 @@ export class StaticSiteWithCloudfront extends Construct {
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
       errorResponses: [
         {
+          // this enables support for apps with client-side routing
           httpStatus: 403,
-          responseHttpStatus: 403,
-          responsePagePath: '/error.html',
-          ttl: Duration.minutes(30),
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
         }
       ],
       defaultBehavior: {
