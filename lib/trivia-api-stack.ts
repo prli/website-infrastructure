@@ -1,17 +1,16 @@
-#!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
-export interface ApiGatewayResourcesProps {
-  apiGateway: apigateway.IRestApi;
+export interface TriviaApiStackStackProps extends cdk.StackProps {
+  apiGateway: cdk.aws_apigateway.IRestApi;
   resourcePath: string;
   authorizer?: apigateway.IAuthorizer;
 }
 
-export class ApiGatewayResources extends Construct {
-  constructor(parent: cdk.Stack, id: string, props: ApiGatewayResourcesProps) {
-    super(parent, id);
+export class TriviaApiStack extends cdk.Stack {
+
+  constructor(parent: cdk.App, name: string, props: TriviaApiStackStackProps) {
+    super(parent, name, props);
 
     const resource = props.apiGateway.root.addResource(props.resourcePath);
 
@@ -23,6 +22,9 @@ export class ApiGatewayResources extends Construct {
             "application/json": JSON.stringify([
               {
                 "id": "$context.requestId",
+                "question": `mock trivia question $context.requestTime`,
+                "answer": `mock trivia answer $context.requestTime very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long text very long text very long textvery long textvery long text very long text very long text very long text very long textvery long textvery long text very long text ${new Date().getTime()}`,
+                "categories": ["categoryOne", "categoryTwo"],
                 "createdAt": "$context.requestTime",
               },
             ], null, 4)
@@ -63,6 +65,9 @@ export class ApiGatewayResources extends Construct {
             "application/json": JSON.stringify([
               {
                 "id": "$context.requestId",
+                "question": `mock trivia question $context.requestTime`,
+                "answer": `mock trivia answer $context.requestTime very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long very long text very long text very long textvery long textvery long text very long text very long text very long text very long textvery long textvery long text very long text ${new Date().getTime()}`,
+                "categories": ["categoryOne", "categoryTwo"],
                 "createdAt": "$context.requestTime",
               },
             ], null, 4)
