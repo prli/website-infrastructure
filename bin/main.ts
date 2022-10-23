@@ -15,4 +15,7 @@ const triviaApiStack = new TriviaApiStack(app, 'TriviaApiStack', {
   apiGateway: lambdaBackedCustomDomainWebsiteStack.apiGateway,
   description: 'stack that deploys APIs for trivia',
   resourcePath: 'trivia',
+  lambdaCodePaths: {
+    getTrivia: app.node.tryGetContext('getTriviaLambdaPath')!,
+  }
 });
