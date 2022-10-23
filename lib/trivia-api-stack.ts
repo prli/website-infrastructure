@@ -12,7 +12,6 @@ export interface TriviaApiStackStackProps extends cdk.StackProps {
 }
 
 export class TriviaApiStack extends cdk.Stack {
-
   constructor(parent: cdk.App, name: string, props: TriviaApiStackStackProps) {
     super(parent, name, props);
 

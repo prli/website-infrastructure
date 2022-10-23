@@ -35,7 +35,7 @@ export class ApiGatewayWithCustomDomain extends Construct {
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
-      }
+      },
     });
 
     new route53.ARecord(this, `${apiName}-ApigCustomDomainAliasRecord`, {

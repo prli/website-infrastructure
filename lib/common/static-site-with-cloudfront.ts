@@ -24,16 +24,15 @@ export interface StaticSiteWithCloudfrontProps {
   /**
    * The sources from which to deploy the contents of the site.
    */
-  siteContentSources: cdk.aws_s3_deployment.ISource[]
+  siteContentSources: cdk.aws_s3_deployment.ISource[];
 }
 
 export class StaticSiteWithCloudfront extends Construct {
-
   constructor(parent: cdk.Stack, id: string, props: StaticSiteWithCloudfrontProps) {
     super(parent, id);
 
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(this, `${id}-cloudfront-OAI`, {
-      comment: `OAI for ${props.domainName}`
+      comment: `OAI for ${props.domainName}`,
     });
     // Content bucket
     const siteBucket = new s3.Bucket(this, `${id}-SiteBucket`, {
@@ -46,15 +45,17 @@ export class StaticSiteWithCloudfront extends Construct {
       autoDeleteObjects: true,
     });
     // Grant access to cloudfront
-    siteBucket.addToResourcePolicy(new iam.PolicyStatement({
-      actions: ['s3:GetObject'],
-      resources: [siteBucket.arnForObjects('*')],
-      principals: [new iam.CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)]
-    }));
+    siteBucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [siteBucket.arnForObjects('*')],
+        principals: [new iam.CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
+      }),
+    );
     // CloudFront distribution
     const distribution = new cloudfront.Distribution(this, `${id}-SiteDistribution`, {
       certificate: props.certificate,
-      defaultRootObject: "index.html",
+      defaultRootObject: 'index.html',
       domainNames: [props.domainName],
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
       errorResponses: [
@@ -63,21 +64,21 @@ export class StaticSiteWithCloudfront extends Construct {
           httpStatus: 403,
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
-        }
+        },
       ],
       defaultBehavior: {
         origin: new cloudfront_origins.S3Origin(siteBucket, { originAccessIdentity: cloudfrontOAI }),
         compress: true,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      }
+      },
     });
 
     // Route53 alias record for the CloudFront distribution
     new route53.ARecord(this, `${id}-SiteAliasRecord`, {
       recordName: props.domainName,
       target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
-      zone: props.hostedZone
+      zone: props.hostedZone,
     });
 
     // Deploy site contents to S3 bucket
