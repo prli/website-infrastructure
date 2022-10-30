@@ -7,6 +7,7 @@ import { StaticSiteWithCloudfront } from './common/static-site-with-cloudfront';
 
 export interface LambdaBackedCustomDomainWebsiteStackProps extends cdk.StackProps {
   domainName: string;
+  siteContentSourcePath: string;
 }
 
 export class LambdaBackedCustomDomainWebsiteStack extends cdk.Stack {
@@ -35,7 +36,7 @@ export class LambdaBackedCustomDomainWebsiteStack extends cdk.Stack {
       domainName: props.domainName,
       hostedZone: this.hostedZone,
       certificate: this.certificate,
-      siteContentSources: [s3deploy.Source.asset('../front-end/build')],
+      siteContentSources: [s3deploy.Source.asset(props.siteContentSourcePath)],
     });
 
     const apiGatewayWithCustomDomain = new ApiGatewayWithCustomDomain(this, 'ApiGatewayWithCustomDomain', {
