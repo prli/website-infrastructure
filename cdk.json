@@ -14,5 +14,9 @@
       "test"
     ]
   },
-  "context": {}
+  "context": {
+    "siteContentSourcePath": "<path to dir>",
+    "getTriviaLambdaEntryPoint": "<path to handler.js>",
+    "dkimValue": "<dkim value>"
+  }
 }

@@ -8,6 +8,7 @@ import { StaticSiteWithCloudfront } from './common/static-site-with-cloudfront';
 export interface LambdaBackedCustomDomainWebsiteStackProps extends cdk.StackProps {
   domainName: string;
   siteContentSourcePath: string;
+  dkimValue?: string;
 }
 
 export class LambdaBackedCustomDomainWebsiteStack extends cdk.Stack {
@@ -45,5 +46,67 @@ export class LambdaBackedCustomDomainWebsiteStack extends cdk.Stack {
       certificate: this.certificate,
     });
     this.apiGateway = apiGatewayWithCustomDomain.restApi;
+
+    if (props.dkimValue) {
+      this.setupEmailDnsRecords(props.dkimValue);
+    }
+  }
+
+  setupEmailDnsRecords(dkimValue: string) {
+    const mxRecord = new route53.MxRecord(this, 'MxRecord', {
+      zone: this.hostedZone,
+      values: [
+        {
+          hostName: 'mx1.privateemail.com',
+          priority: 10,
+        },
+        {
+          hostName: 'mx2.privateemail.com',
+          priority: 10,
+        },
+      ],
+    });
+
+    const SPFTxtRecord = new route53.TxtRecord(this, 'SPFRecord', {
+      zone: this.hostedZone,
+      values: ['v=spf1 include:spf.privateemail.com ~all'],
+    });
+
+    const DKIMTxtRecord = new route53.TxtRecord(this, 'DKIMRecord', {
+      zone: this.hostedZone,
+      recordName: 'default._domainkey',
+      values: [dkimValue],
+    });
+
+    const mailCNameRecord = new route53.CnameRecord(this, 'MailCNameRecord', {
+      zone: this.hostedZone,
+      recordName: 'mail',
+      domainName: 'privateemail.com',
+    });
+
+    const autoconfigCNameRecord = new route53.CnameRecord(this, 'AutoconfigCNameRecord', {
+      zone: this.hostedZone,
+      recordName: 'autoconfig',
+      domainName: 'privateemail.com',
+    });
+
+    const autodiscoverCNameRecord = new route53.CnameRecord(this, 'AutodiscoverCNameRecord', {
+      zone: this.hostedZone,
+      recordName: 'autodiscover',
+      domainName: 'privateemail.com',
+    });
+
+    const srvRecord = new route53.SrvRecord(this, 'SrvRecord', {
+      zone: this.hostedZone,
+      recordName: '_autodiscover._tcp',
+      values: [
+        {
+          hostName: 'privateemail.com',
+          priority: 0,
+          weight: 0,
+          port: 443,
+        },
+      ],
+    });
   }
 }

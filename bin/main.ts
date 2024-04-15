@@ -13,6 +13,7 @@ const lambdaBackedCustomDomainWebsiteStack = new LambdaBackedCustomDomainWebsite
     domainName: 'lipeiran.dev',
     description: 'stack that deploys a website backed by lambda and authorized with cognito',
     siteContentSourcePath: app.node.tryGetContext('siteContentSourcePath')!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    dkimValue: app.node.tryGetContext('dkimValue')!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
   },
 );
 
